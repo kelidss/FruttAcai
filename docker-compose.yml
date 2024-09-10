@@ -1,0 +1,44 @@
+services:
+  # frutt-web:
+  #   build:
+  #     context: ./web
+  #     dockerfile: Dockerfile
+  #   depends_on:
+  #     - frutt-api
+  #   ports:
+  #     - 80:80
+  #   networks:
+  #     - frutt-network
+  #   volumes:
+  #     - frutt-web:/var/www/html
+
+  # frutt-api:
+  #   build:
+  #     context: ./api
+  #     dockerfile: Dockerfile
+  #   depends_on:
+  #     - frutt-db
+  #   ports:
+  #     - 5000:5000
+  #   networks:
+  #     - frutt-network
+
+  frutt-db:
+    image: mysql:5.7
+    restart: always
+    env_file:
+      - .env
+    ports:
+      - "3306:3306"
+    networks:
+      - frutt-network
+    volumes:
+      - frutt-db:/var/lib/mysql
+
+networks:
+  frutt-network:
+    driver: bridge
+
+volumes:
+  frutt-db:
+  # frutt-web:

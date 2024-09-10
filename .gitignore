@@ -1,2 +1,5 @@
 web/nginx.conf
 .env
+api/venv
+api/.mypy_cache
+__pycache__
