@@ -1,30 +1,7 @@
 services:
-  # frutt-web:
-  #   build:
-  #     context: ./web
-  #     dockerfile: Dockerfile
-  #   depends_on:
-  #     - frutt-api
-  #   ports:
-  #     - 80:80
-  #   networks:
-  #     - frutt-network
-  #   volumes:
-  #     - frutt-web:/var/www/html
-
-  # frutt-api:
-  #   build:
-  #     context: ./api
-  #     dockerfile: Dockerfile
-  #   depends_on:
-  #     - frutt-db
-  #   ports:
-  #     - 5000:5000
-  #   networks:
-  #     - frutt-network
-
-  frutt-db:
+  db:
     image: mysql:5.7
+    container_name: frutt_db
     restart: always
     env_file:
       - .env
@@ -33,12 +10,47 @@ services:
     networks:
       - frutt-network
     volumes:
-      - frutt-db:/var/lib/mysql
+      - db:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "--silent"]
+      interval: 10s
+      retries: 5
+      start_period: 30s
+      timeout: 10s
+
+  api:
+    build:
+      context: ./api
+      dockerfile: Dockerfile
+    container_name: frutt_api
+    env_file:
+      - .env
+    depends_on: # junto ao `healthcheck` do `db`, garante que `api` so rode quando banco estiver up
+      db:
+        condition: service_healthy
+    ports:
+      - "5000:5000"
+    networks:
+      - frutt-network
+
+  # web:
+  #   build:
+  #     context: ./web
+  #     dockerfile: Dockerfile
+  #   depends_on:
+  #     - api
+  #   ports:
+  #     - 80:80
+  #   networks:
+  #     - frutt-network
+  #   volumes:
+  #     - web:/var/www/html
+
 
 networks:
   frutt-network:
     driver: bridge
 
 volumes:
-  frutt-db:
-  # frutt-web:
+  db:
+  # web:
