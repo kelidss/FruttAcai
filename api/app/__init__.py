@@ -1,8 +1,9 @@
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from .config import Config
+from .controllers import register_blueprints
 
-# Inicializa o banco de dados
+# inicializa o banco de dados
 print("Iniciou o banco")
 db = SQLAlchemy()
 
@@ -10,16 +11,18 @@ def create_app():
     app = Flask(__name__)
     app.config.from_object(Config)
 
-    # Inicializa as extensões
+    # inicializa as extensoes
     db.init_app(app)
 
-    # Registra rotas
-    from .controllers import api_bp
-    app.register_blueprint(api_bp)
+    # registra rotas automaticamente
+    register_blueprints(app)
 
-    # Importa os modelos
     with app.app_context():
-        from app import models
-        db.create_all()  # Cria as tabelas no banco de dados
+        try:
+            from . import models
+            db.create_all()  # cria as tabelas apenas se elas nao existirem
+            print("Tabelas criadas com sucesso.")
+        except Exception as e:
+            print(f"Erro ao criar tabelas: {e}")
 
     return app

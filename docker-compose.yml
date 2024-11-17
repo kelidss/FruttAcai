@@ -1,8 +1,8 @@
 services:
   db:
-    image: mysql:5.7
+    image: mysql:8.0.40-debian
     container_name: frutt_db
-    restart: always
+    #restart: always
     env_file:
       - .env
     ports:

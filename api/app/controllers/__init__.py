@@ -1,25 +1,23 @@
-from flask import Blueprint, jsonify, request
-from app.models.user import User
-from app import db
+import glob
+import os
+from flask import Blueprint
 
-api_bp = Blueprint('api', __name__)
+# Função para registrar todos os Blueprints
+def register_blueprints(app):
+    # Caminho para todos os arquivos Python na pasta controllers
+    controllers_path = os.path.join(os.path.dirname(__file__), "*.py")
 
-@api_bp.route('/users', methods=['GET'])
-def get_users():
-    users = User.query.all()
-    return jsonify([{
-        'id': user.id,
-        'username': user.username,
-        'email': user.email
-        } for user in users
-    ])
-
-@api_bp.route('/users', methods=['POST'])
-def create_user():
-    data = request.get_json()
-    new_user = User(username=data['username'], email=data['email'])
-    db.session.add(new_user)
-    db.session.commit()
-    return jsonify({
-        'message': 'User created'
-    }), 201
+    # Loop para importar todos os controladores
+    for controller_file in glob.glob(controllers_path):
+        # Ignora o próprio __init__.py
+        if "__init__.py" in controller_file:
+            continue
+        
+        # Importa o controlador
+        module_name = os.path.basename(controller_file)[:-3]  # Remove ".py"
+        module = __import__(f"app.controllers.{module_name}", fromlist=[module_name])
+        
+        # Registra todos os Blueprints encontrados
+        for blueprint in module.__dict__.values():
+            if isinstance(blueprint, Blueprint):
+                app.register_blueprint(blueprint)
