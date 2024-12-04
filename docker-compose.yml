@@ -2,7 +2,6 @@ services:
   db:
     image: mysql:8.0.40-debian
     container_name: frutt_db
-    #restart: always
     env_file:
       - .env
     ports:
@@ -33,18 +32,19 @@ services:
     networks:
       - frutt-network
 
-  # web:
-  #   build:
-  #     context: ./web
-  #     dockerfile: Dockerfile
-  #   depends_on:
-  #     - api
-  #   ports:
-  #     - 80:80
-  #   networks:
-  #     - frutt-network
-  #   volumes:
-  #     - web:/var/www/html
+  web:
+    build:
+      context: ./web
+      dockerfile: Dockerfile
+    container_name: frutt_web
+    depends_on:
+      - api
+    ports:
+      - 80:80
+    networks:
+      - frutt-network
+    volumes:
+      - web:/var/www/html
 
 
 networks:
@@ -53,4 +53,4 @@ networks:
 
 volumes:
   db:
-  # web:
+  web:
